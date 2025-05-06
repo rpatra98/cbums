@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { signOut } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Box, Typography, CircularProgress } from "@mui/material";
 
-export default function LogoutPage() {
+function LogoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<string>("Logging out...");
@@ -70,5 +70,29 @@ export default function LogoutPage() {
         Please wait while we sign you out securely.
       </Typography>
     </Box>
+  );
+}
+
+export default function LogoutPage() {
+  return (
+    <Suspense fallback={
+      <Box 
+        sx={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          alignItems: 'center', 
+          justifyContent: 'center',
+          minHeight: '100vh',
+          bgcolor: 'background.default'
+        }}
+      >
+        <CircularProgress size={48} sx={{ mb: 4 }} />
+        <Typography variant="h5" gutterBottom>
+          Loading...
+        </Typography>
+      </Box>
+    }>
+      <LogoutContent />
+    </Suspense>
   );
 } 
