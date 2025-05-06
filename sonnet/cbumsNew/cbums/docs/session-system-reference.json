@@ -1,0 +1,197 @@
+{
+  "title": "CBUMS Session System Reference",
+  "sections": [
+    {
+      "title": "Session Core Concepts",
+      "subsections": [
+        {
+          "title": "Definition and Structure",
+          "points": [
+            "Sessions represent tracked business processes with defined source and destination",
+            "Each session is owned by exactly one COMPANY",
+            "Sessions contain verification data points that must be confirmed",
+            "Sessions utilize a seal component for security verification"
+          ]
+        },
+        {
+          "title": "Key Components",
+          "points": [
+            "Session Metadata: ID, creation time, status, source, destination",
+            "Company Association: The single company that owns the session",
+            "Creator Info: OPERATOR who created the session",
+            "Verification Points: Data points requiring verification",
+            "Seal Component: Security mechanism with barcode scanning",
+            "Comment History: Communication record between stakeholders"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Session Workflow",
+      "subsections": [
+        {
+          "title": "Creation Phase",
+          "points": [
+            "Sessions can ONLY be created by OPERATORS",
+            "OPERATORS must be associated with the session's COMPANY",
+            "OPERATORS define all required verification data points",
+            "Initial session status is unverified/pending"
+          ]
+        },
+        {
+          "title": "Verification Phase",
+          "points": [
+            "Verification can ONLY be performed by GUARDS",
+            "GUARDS must be associated with the session's COMPANY",
+            "GUARDS verify seal information (typically via barcode)",
+            "GUARDS must verify all data points set by the OPERATOR"
+          ]
+        },
+        {
+          "title": "Completion Standards",
+          "points": [
+            "Sessions are only complete when ALL verification points are confirmed",
+            "Completed sessions create a full audit trail from creation to verification",
+            "Session status changes to verified/complete upon successful verification"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Access Control Matrix",
+      "roles": [
+        {
+          "role": "SUPERADMIN",
+          "creation": false,
+          "verification": false,
+          "visibility": "ALL sessions",
+          "reporting": "ALL sessions"
+        },
+        {
+          "role": "ADMIN",
+          "creation": false,
+          "verification": false,
+          "visibility": "Only sessions for companies created by them",
+          "reporting": "Same as visibility"
+        },
+        {
+          "role": "COMPANY",
+          "creation": false,
+          "verification": false,
+          "visibility": "Only their own sessions",
+          "reporting": "Only their own sessions"
+        },
+        {
+          "role": "OPERATOR",
+          "creation": "Yes (own company only)",
+          "verification": false,
+          "visibility": "Only sessions they created",
+          "reporting": "Only sessions they created"
+        },
+        {
+          "role": "GUARD",
+          "creation": false,
+          "verification": "Yes (own company only)",
+          "visibility": "Only sessions they verified",
+          "reporting": "Only sessions they verified"
+        }
+      ]
+    },
+    {
+      "title": "Company Isolation Rules",
+      "subsections": [
+        {
+          "title": "Session Containment",
+          "points": [
+            "Each session belongs to exactly ONE company",
+            "No cross-company visibility or access is permitted",
+            "Sessions are fully isolated within company boundaries"
+          ]
+        },
+        {
+          "title": "Employee Restrictions",
+          "restrictions": [
+            {
+              "role": "OPERATORS",
+              "rules": [
+                "Can ONLY create sessions for their associated company",
+                "Cannot view or interact with sessions from other companies",
+                "Session creation is restricted to company-associated OPERATORS"
+              ]
+            },
+            {
+              "role": "GUARDS",
+              "rules": [
+                "Can ONLY verify sessions for their associated company",
+                "Cannot view or interact with sessions from other companies",
+                "Verification is limited to company-associated GUARDS"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Functional Requirements",
+      "subsections": [
+        {
+          "title": "Session Creation",
+          "points": [
+            "Interface for OPERATORS to define verification data points",
+            "Company association must be automatically applied",
+            "Seal generation and management functionality",
+            "Status tracking from creation through verification"
+          ]
+        },
+        {
+          "title": "Session Verification",
+          "points": [
+            "Interface for GUARDS to review and verify data points",
+            "Barcode scanning for seal verification",
+            "Completion tracking for all verification points",
+            "Status updates based on verification progress"
+          ]
+        },
+        {
+          "title": "Reporting & Documentation",
+          "points": [
+            "PDF and Excel report generation",
+            "Complete session history and details",
+            "Comment history inclusion",
+            "Proper access controls on report generation"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Security Guidelines",
+      "subsections": [
+        {
+          "title": "Separation of Duties",
+          "points": [
+            "Creation (OPERATORS) and verification (GUARDS) must be separate",
+            "No single role can both create and verify a session",
+            "Administrative roles have visibility but not creation/verification abilities"
+          ]
+        },
+        {
+          "title": "Access Enforcement",
+          "points": [
+            "Strict role-based access control for all session operations",
+            "Company-based isolation for OPERATOR and GUARD roles",
+            "Hierarchical visibility structure for administrative roles"
+          ]
+        },
+        {
+          "title": "Audit Requirements",
+          "points": [
+            "Complete tracking of all session-related activities",
+            "Documentation at each stage of the process",
+            "Timestamp and user information for all actions",
+            "Non-repudiation of creation and verification steps"
+          ]
+        }
+      ]
+    }
+  ]
+} 
