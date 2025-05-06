@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String            @id @default(uuid())
+  name                 String
+  email                String            @unique
+  password             String
+  role                 UserRole
+  subrole              EmployeeSubrole?
+  companyId            String?
+  coins                Int? // Optional: Only used for SuperAdmin, Admin, and Operator roles
+  createdById          String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  targetActivityLogs   ActivityLog[]     @relation("TargetUserActivityLogs")
+  activityLogs         ActivityLog[]     @relation("UserActivityLogs")
+  sentTransactions     CoinTransaction[] @relation("SentTransactions")
+  receivedTransactions CoinTransaction[] @relation("ReceivedTransactions")
+  comments             Comment[]
+  verifiedSeals        Seal[]            @relation("SealVerifiedBy")
+  createdSessions      Session[]         @relation("SessionCreatedBy")
+  company              Company?          @relation(fields: [companyId], references: [id])
+  createdBy            User?             @relation("UserCreatedBy", fields: [createdById], references: [id])
+  createdUsers         User[]            @relation("UserCreatedBy")
+
+  @@map("users")
+}
+
+model Company {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  address   String?
+  phone     String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  sessions  Session[]
+  employees User[]
+
+  @@map("companies")
+}
+
+model CoinTransaction {
+  id         String             @id @default(uuid())
+  fromUserId String
+  toUserId   String
+  amount     Int
+  reasonText String?
+  reason     TransactionReason?
+  createdAt  DateTime           @default(now())
+  fromUser   User               @relation("SentTransactions", fields: [fromUserId], references: [id])
+  toUser     User               @relation("ReceivedTransactions", fields: [toUserId], references: [id])
+
+  @@map("coin_transactions")
+}
+
+model Session {
+  id          String        @id @default(uuid())
+  createdAt   DateTime      @default(now())
+  createdById String
+  companyId   String
+  source      String
+  destination String
+  status      SessionStatus @default(PENDING)
+  comments    Comment[]
+  seal        Seal?
+  company     Company       @relation(fields: [companyId], references: [id])
+  createdBy   User          @relation("SessionCreatedBy", fields: [createdById], references: [id])
+
+  @@map("sessions")
+}
+
+model Seal {
+  id           String    @id @default(uuid())
+  sessionId    String    @unique
+  barcode      String
+  scannedAt    DateTime?
+  verified     Boolean   @default(false)
+  verifiedById String?
+  session      Session   @relation(fields: [sessionId], references: [id])
+  verifiedBy   User?     @relation("SealVerifiedBy", fields: [verifiedById], references: [id])
+
+  @@map("seals")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  sessionId String
+  userId    String
+  message   String
+  createdAt DateTime @default(now())
+  session   Session  @relation(fields: [sessionId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("comments")
+}
+
+model ActivityLog {
+  id                 String         @id @default(uuid())
+  userId             String
+  action             ActivityAction
+  details            Json?
+  targetUserId       String?
+  targetResourceId   String?
+  targetResourceType String?
+  ipAddress          String?
+  userAgent          String?
+  createdAt          DateTime       @default(now())
+  targetUser         User?          @relation("TargetUserActivityLogs", fields: [targetUserId], references: [id])
+  user               User           @relation("UserActivityLogs", fields: [userId], references: [id])
+
+  @@map("activity_logs")
+}
+
+enum UserRole {
+  SUPERADMIN
+  ADMIN
+  COMPANY
+  EMPLOYEE
+}
+
+enum EmployeeSubrole {
+  OPERATOR
+  DRIVER
+  TRANSPORTER
+  GUARD
+}
+
+enum SessionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum TransactionReason {
+  ADMIN_CREATION
+  OPERATOR_CREATION
+  COIN_ALLOCATION
+  SESSION_CREATION
+}
+
+enum ActivityAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  TRANSFER
+  ALLOCATE
+  VIEW
+}
