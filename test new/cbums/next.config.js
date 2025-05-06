@@ -17,6 +17,13 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   
+  // Configure which pages should not be statically generated
+  output: 'standalone',
+  
+  // Skip static generation for routes that access the database
+  skipTrailingSlashRedirect: true,
+  skipMiddlewareUrlNormalize: true,
+  
   // Add redirects for company and employee detail pages
   async redirects() {
     return [
