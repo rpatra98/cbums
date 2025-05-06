@@ -1,6 +1,9 @@
 // Simplify the approach to avoid TypeScript errors during build
 // @ts-ignore
 import { PrismaClient } from '@prisma/client';
+// Add Prisma Accelerate extension
+// @ts-ignore
+import { withAccelerate } from '@prisma/extension-accelerate';
 
 // This is important - it prevents Prisma from trying to connect during build time
 const globalForPrisma = global as unknown as { prisma: any };
@@ -42,11 +45,12 @@ const createPrismaClient = () => {
   }
   
   try {
+    // Initialize with Prisma Accelerate extension for improved performance
     return new PrismaClient({
       log: process.env.NODE_ENV === 'development' 
         ? ['query', 'error', 'warn'] 
         : ['error'],
-    }).$extends({
+    }).$extends(withAccelerate()).$extends({
       query: {
         // @ts-ignore - ignore the parameter typing errors
         async $allOperations(params: any) {
